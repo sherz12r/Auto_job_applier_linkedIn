@@ -19,10 +19,10 @@ version:    26.01.20.5.08
 
 # These Sentences are Searched in LinkedIn
 # Enter your search terms inside '[ ]' with quotes ' "searching title" ' for each search followed by comma ', ' Eg: ["Software Engineer", "Software Developer", "Selenium Developer"]
-search_terms = ["Software Engineer", "Software Developer", "Python Developer", "Selenium Developer", "React Developer", "Java Developer", "Front End Developer", "Full Stack Developer", "Web Developer", "Nodejs Developer"]
+search_terms = ["laravel developer", "Full Stack Developer", "Web Developer"]
 
 # Search location, this will be filled in "City, state, or zip code" search box. If left empty as "", tool will not fill it.
-search_location = "United States"               # Some valid examples: "", "United States", "India", "Chicago, Illinois, United States", "90001, Los Angeles, California, United States", "Bengaluru, Karnataka, India", etc.
+search_location = "United Arab Emirates"               # Some valid examples: "", "United States", "India", "Chicago, Illinois, United States", "90001, Los Angeles, California, United States", "Bengaluru, Karnataka, India", etc.
 
 # After how many number of applications in current search should the bot switch to next search? 
 switch_number = 30                 # Only numbers greater than 0... Don't put in quotes
@@ -91,7 +91,7 @@ about_company_bad_words = ["Crossover"]       # (dynamic multiple search) or lea
 about_company_good_words = []      # (dynamic multiple search) or leave empty as []. Ex: ["Robert Half", "Dice"]
 
 # Avoid applying to these companies if they have these bad words in their 'Job Description' section...  (In development)
-bad_words = ["US Citizen","USA Citizen","No C2C", "No Corp2Corp", ".NET", "Embedded Programming", "PHP", "Ruby", "CNC"]                     # (dynamic multiple search) or leave empty as []. Case Insensitive. Ex: ["word_1", "phrase 1", "word word", "polygraph", "US Citizenship", "Security Clearance"]
+bad_words = ["US Citizen","USA Citizen"]                     # (dynamic multiple search) or leave empty as []. Case Insensitive. Ex: ["word_1", "phrase 1", "word word", "polygraph", "US Citizenship", "Security Clearance"]
 
 # Do you have an active Security Clearance? (True for Yes and False for No)
 security_clearance = False         # True or False, Note: True or False are case-sensitive
