@@ -1179,15 +1179,17 @@ def main() -> None:
         global linkedIn_tab, tabs_count, useNewResume, aiClient
         alert_title = "Error Occurred. Closing Browser!"
         validate_config()
-        
+        print("config validated")
         if not os.path.exists(default_resume_path):
             pyautogui.alert(text='Your default resume "{}" is missing! Please update it\'s folder path "default_resume_path" in config.py\n\nOR\n\nAdd a resume with exact name and path (check for spelling mistakes including cases).\n\n\nFor now the bot will continue using your previous upload from LinkedIn!'.format(default_resume_path), title="Missing Resume", button="OK")
             useNewResume = False
+        print("config validated1")
         
         # Login to LinkedIn
         tabs_count = len(driver.window_handles)
         driver.get("https://www.linkedin.com/login")
         if not is_logged_in_LN(): login_LN()
+        print("not logged in")
         
         linkedIn_tab = driver.current_window_handle
 
@@ -1218,6 +1220,7 @@ def main() -> None:
                 print_lg(f"Extracted about company info for AI: '{about_company_for_ai}'")
             except Exception as e:
                 print_lg("Failed to extract about company info!", e)
+        print("next in")
         
         # Start applying to jobs
         driver.switch_to.window(linkedIn_tab)

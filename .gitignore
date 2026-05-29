@@ -10,5 +10,6 @@ old
 venv
 secrets.py
 config/personals.py
+config/secerets.py
 .venv
 apikeys.py
