@@ -125,6 +125,7 @@ def login_LN() -> None:
     '''
     # Find the username and password fields and fill them with user credentials
     driver.get("https://www.linkedin.com/login")
+    print("loggin")
     if username == "username@example.com" and password == "example_password":
         pyautogui.alert("User did not configure username and password in secrets.py, hence can't login automatically! Please login manually!", "Login Manually","Okay")
         print_lg("User did not configure username and password in secrets.py, hence can't login automatically! Please login manually!")
@@ -1179,17 +1180,14 @@ def main() -> None:
         global linkedIn_tab, tabs_count, useNewResume, aiClient
         alert_title = "Error Occurred. Closing Browser!"
         validate_config()
-        print("config validated")
         if not os.path.exists(default_resume_path):
             pyautogui.alert(text='Your default resume "{}" is missing! Please update it\'s folder path "default_resume_path" in config.py\n\nOR\n\nAdd a resume with exact name and path (check for spelling mistakes including cases).\n\n\nFor now the bot will continue using your previous upload from LinkedIn!'.format(default_resume_path), title="Missing Resume", button="OK")
             useNewResume = False
-        print("config validated1")
         
         # Login to LinkedIn
         tabs_count = len(driver.window_handles)
         driver.get("https://www.linkedin.com/login")
         if not is_logged_in_LN(): login_LN()
-        print("not logged in")
         
         linkedIn_tab = driver.current_window_handle
 

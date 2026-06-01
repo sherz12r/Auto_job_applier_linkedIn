@@ -19,13 +19,13 @@ version:    24.12.3.10.30
 
 
 # Login Credentials for LinkedIn (Optional)
-username = "username@gmail.com"       # Enter your username in the quotes
-password = "password"           # Enter your password in the quotes
+username = "username@example.com"       # Enter your username in the quotes
+password = "example_password"           # Enter your password in the quotes
 
 
 ## Artificial Intelligence (Beta Not-Recommended)
 # Use AI
-use_AI = True                          # True or False, Note: True or False are case-sensitive
+use_AI = False                          # True or False, Note: True or False are case-sensitive
 '''
 Note: Set it as True only if you want to use AI, and If you either have a
 1. Local LLM model running on your local machine, with it's APIs exposed. Example softwares to achieve it are:

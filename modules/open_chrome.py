@@ -36,7 +36,8 @@ def createChromeSession(isRetry: bool = False):
     if disable_extensions:  options.add_argument("--disable-extensions")
 
     print_lg("IF YOU HAVE MORE THAN 10 TABS OPENED, PLEASE CLOSE OR BOOKMARK THEM! Or it's highly likely that application will just open browser and not do anything!")
-    profile_dir = find_default_profile_directory()
+    # profile_dir = find_default_profile_directory()
+    profile_dir = get_default_temp_profile()
     if isRetry:
         print_lg("Will login with a guest profile, browsing history will not be saved in the browser!")
     elif profile_dir and not safe_mode:
@@ -50,11 +51,11 @@ def createChromeSession(isRetry: bool = False):
         # except (FileNotFoundError, PermissionError) as e: 
         #     print_lg("(Undetected Mode) Got '{}' when using pre-installed ChromeDriver.".format(type(e).__name__)) 
             print_lg("Downloading Chrome Driver... This may take some time. Undetected mode requires download every run!")
-            # driver = uc.Chrome(options=options)
-            driver = uc.Chrome(
-                options=options,
-                version_main=148
-            )
+            driver = uc.Chrome(options=options)
+            # driver = uc.Chrome(
+            #     options=options,
+            #     version_main=148
+            # )
     else: driver = webdriver.Chrome(options=options) #, service=Service(executable_path="C:\\Program Files\\Google\\Chrome\\chromedriver-win64\\chromedriver.exe"))
     driver.maximize_window()
     wait = WebDriverWait(driver, 5)
