@@ -124,7 +124,7 @@ def login_LN() -> None:
     * If both failed, asks user to login manually
     '''
     # Find the username and password fields and fill them with user credentials
-    driver.get("https://www.linkedin.com/login")
+    driver.get("https://www.linkedin.com/login/en-us")
     print("loggin")
     if username == "username@example.com" and password == "example_password":
         pyautogui.alert("User did not configure username and password in secrets.py, hence can't login automatically! Please login manually!", "Login Manually","Okay")
@@ -1186,7 +1186,7 @@ def main() -> None:
         
         # Login to LinkedIn
         tabs_count = len(driver.window_handles)
-        driver.get("https://www.linkedin.com/login")
+        driver.get("https://www.linkedin.com/login/en-us")
         if not is_logged_in_LN(): login_LN()
         
         linkedIn_tab = driver.current_window_handle

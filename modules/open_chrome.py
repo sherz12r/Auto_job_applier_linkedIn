@@ -34,7 +34,7 @@ def createChromeSession(isRetry: bool = False):
     options = uc.ChromeOptions() if stealth_mode else Options()
     if run_in_background:   options.add_argument("--headless")
     if disable_extensions:  options.add_argument("--disable-extensions")
-
+    
     print_lg("IF YOU HAVE MORE THAN 10 TABS OPENED, PLEASE CLOSE OR BOOKMARK THEM! Or it's highly likely that application will just open browser and not do anything!")
     # profile_dir = find_default_profile_directory()
     profile_dir = get_default_temp_profile()
@@ -57,7 +57,7 @@ def createChromeSession(isRetry: bool = False):
             #     version_main=148
             # )
     else: driver = webdriver.Chrome(options=options) #, service=Service(executable_path="C:\\Program Files\\Google\\Chrome\\chromedriver-win64\\chromedriver.exe"))
-    driver.maximize_window()
+    # driver.maximize_window()
     wait = WebDriverWait(driver, 5)
     actions = ActionChains(driver)
     return options, driver, actions, wait
