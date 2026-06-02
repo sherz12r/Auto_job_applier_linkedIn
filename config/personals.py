@@ -1,16 +1,3 @@
-'''
-Author:     Sai Vignesh Golla
-LinkedIn:   https://www.linkedin.com/in/saivigneshgolla/
-
-Copyright (C) 2024 Sai Vignesh Golla
-
-License:    GNU Affero General Public License
-            https://www.gnu.org/licenses/agpl-3.0.en.html
-            
-GitHub:     https://github.com/GodsScion/Auto_job_applier_linkedIn
-
-version:    2024.11.28.16.00
-'''
 
 
 ###################################################### CONFIGURE YOUR TOOLS HERE ######################################################
@@ -33,7 +20,7 @@ Note: If left empty as "", the bot will fill in location of jobs location.
 '''
 
 # Address, not so common question but some job applications make it required!
-street = "123 Main Street"
+street = "Hamdan Street"
 state = "Abu dhabi"
 zipcode = "12345"
 country = "United Arab Emirates"

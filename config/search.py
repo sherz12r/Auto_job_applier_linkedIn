@@ -1,25 +1,10 @@
-'''
-Author:     Sai Vignesh Golla
-LinkedIn:   https://www.linkedin.com/in/saivigneshgolla/
-
-Copyright (C) 2024 Sai Vignesh Golla
-
-License:    GNU Affero General Public License
-            https://www.gnu.org/licenses/agpl-3.0.en.html
-            
-GitHub:     https://github.com/GodsScion/Auto_job_applier_linkedIn
-
-Support me: https://github.com/sponsors/GodsScion
-
-version:    26.01.20.5.08
-'''
 
 
 ###################################################### LINKEDIN SEARCH PREFERENCES ######################################################
 
 # These Sentences are Searched in LinkedIn
 # Enter your search terms inside '[ ]' with quotes ' "searching title" ' for each search followed by comma ', ' Eg: ["Software Engineer", "Software Developer", "Selenium Developer"]
-search_terms = ["Senior Web Developer", "laravel developer", "Full Stack Developer", "Web Developer", "Automation Engineer"]
+search_terms = ["Senior Web Developer", "laravel developer", "Full Stack Developer", "Web Developer", "Automation Engineer", "Senior Laravel Engineer"]
 
 # Search location, this will be filled in "City, state, or zip code" search box. If left empty as "", tool will not fill it.
 search_location = "United Arab Emirates"               # Some valid examples: "", "United States", "India", "Chicago, Illinois, United States", "90001, Los Angeles, California, United States", "Bengaluru, Karnataka, India", etc.
@@ -85,13 +70,13 @@ pause_after_filters = True         # True or False, Note: True or False are case
 ## >>>>>>>>>>> SKIP IRRELEVANT JOBS <<<<<<<<<<<
  
 # Avoid applying to these companies, and companies with these bad words in their 'About Company' section...
-about_company_bad_words = ["Crossover"]       # (dynamic multiple search) or leave empty as []. Ex: ["Staffing", "Recruiting", "Name of Company you don't want to apply to"]
+about_company_bad_words = ["Crossover", "UAE National"]       # (dynamic multiple search) or leave empty as []. Ex: ["Staffing", "Recruiting", "Name of Company you don't want to apply to"]
 
 # Skip checking for `about_company_bad_words` for these companies if they have these good words in their 'About Company' section... [Exceptions, For example, I want to apply to "Robert Half" although it's a staffing company]
 about_company_good_words = []      # (dynamic multiple search) or leave empty as []. Ex: ["Robert Half", "Dice"]
 
 # Avoid applying to these companies if they have these bad words in their 'Job Description' section...  (In development)
-bad_words = ["US Citizen","USA Citizen","arabic speaker","UAE family book"]                     # (dynamic multiple search) or leave empty as []. Case Insensitive. Ex: ["word_1", "phrase 1", "word word", "polygraph", "US Citizenship", "Security Clearance"]
+bad_words = ["US Citizen", "USA Citizen", "arabic speaker", "UAE family book", "UAE National","Figma to WordPress"]                     # (dynamic multiple search) or leave empty as []. Case Insensitive. Ex: ["word_1", "phrase 1", "word word", "polygraph", "US Citizenship", "Security Clearance"]
 
 # Do you have an active Security Clearance? (True for Yes and False for No)
 security_clearance = False         # True or False, Note: True or False are case-sensitive
@@ -106,21 +91,3 @@ current_experience = 5             # Integers > -2 (Ex: -1, 0, 1, 2, 3, 4...)
 
 
 
-
-
-############################################################################################################
-'''
-THANK YOU for using my tool 😊! Wishing you the best in your job hunt 🙌🏻!
-
-Sharing is caring! If you found this tool helpful, please share it with your peers 🥺. Your support keeps this project alive.
-
-Support my work on <PATREON_LINK>. Together, we can help more job seekers.
-
-As an independent developer, I pour my heart and soul into creating tools like this, driven by the genuine desire to make a positive impact.
-
-Your support, whether through donations big or small or simply spreading the word, means the world to me and helps keep this project alive and thriving.
-
-Gratefully yours 🙏🏻,
-Sai Vignesh Golla
-'''
-############################################################################################################
