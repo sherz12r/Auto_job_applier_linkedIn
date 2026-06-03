@@ -37,7 +37,7 @@ linkedIn = "https://www.linkedin.com/in/sheraz12r/"       # "https://www.linkedi
 
 # What is the status of your citizenship? # If left empty as "", tool will not answer the question. However, note that some companies make it compulsory to be answered
 # Valid options are: "U.S. Citizen/Permanent Resident", "Non-citizen allowed to work for any employer", "Non-citizen allowed to work for current employer", "Non-citizen seeking work authorization", "Canadian Citizen/Permanent Resident" or "Other"
-us_citizenship = ""
+us_citizenship = "Non-citizen seeking work authorization"
 
 
 
