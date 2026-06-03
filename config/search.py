@@ -52,7 +52,7 @@ job_titles = []                    # (dynamic multiple select)
 benefits = []                      # (dynamic multiple select)
 commitments = []                   # (dynamic multiple select)
 
-under_10_applicants = True        # True or False, Note: True or False are case-sensitive
+under_10_applicants = False        # True or False, Note: True or False are case-sensitive
 in_your_network = False            # True or False, Note: True or False are case-sensitive
 fair_chance_employer = False       # True or False, Note: True or False are case-sensitive
 
