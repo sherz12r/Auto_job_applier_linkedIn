@@ -41,7 +41,7 @@ easy_apply_only = True             # True or False, Note: True or False are case
 
 experience_level = []              # (multiple select) "Internship", "Entry level", "Associate", "Mid-Senior level", "Director", "Executive"
 job_type = []                      # (multiple select) "Full-time", "Part-time", "Contract", "Temporary", "Volunteer", "Internship", "Other"
-on_site = []                       # (multiple select) "On-site", "Remote", "Hybrid"
+on_site = ["On-site", "Hybrid"]                       # (multiple select) "On-site", "Remote", "Hybrid"
 
 companies = []                     # (dynamic multiple select) make sure the name you type in list exactly matches with the company name you're looking for, including capitals. 
                                    # Eg: "7-eleven", "Google","X, the moonshot factory","YouTube","CapitalG","Adometry (acquired by Google)","Meta","Apple","Byte Dance","Netflix", "Snowflake","Mineral.ai","Microsoft","JP Morgan","Barclays","Visa","American Express", "Snap Inc", "JPMorgan Chase & Co.", "Tata Consultancy Services", "Recruiting from Scratch", "Epic", and so on...
@@ -76,7 +76,7 @@ about_company_bad_words = ["Crossover", "UAE National"]       # (dynamic multipl
 about_company_good_words = []      # (dynamic multiple search) or leave empty as []. Ex: ["Robert Half", "Dice"]
 
 # Avoid applying to these companies if they have these bad words in their 'Job Description' section...  (In development)
-bad_words = ["US Citizen", "USA Citizen", "arabic speaker", "UAE family book", "UAE National","Figma to WordPress", "Frontend developer", "Internship", "EMIRATI"]                     # (dynamic multiple search) or leave empty as []. Case Insensitive. Ex: ["word_1", "phrase 1", "word word", "polygraph", "US Citizenship", "Security Clearance"]
+bad_words = ["US Citizen", "USA Citizen", "arabic speaker", "UAE family book", "UAE National","Figma to WordPress", "Frontend developer", "Internship", "EMIRATI","QA Engineer", "Salesforce"]                     # (dynamic multiple search) or leave empty as []. Case Insensitive. Ex: ["word_1", "phrase 1", "word word", "polygraph", "US Citizenship", "Security Clearance"]
 
 # Do you have an active Security Clearance? (True for Yes and False for No)
 security_clearance = False         # True or False, Note: True or False are case-sensitive
