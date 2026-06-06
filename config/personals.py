@@ -7,7 +7,7 @@
 
 # Your legal name
 first_name = "Muhammad Sheraz"                 # Your first name in quotes Eg: "First", "Sai"
-middle_name = ""            # Your name in quotes Eg: "Middle", "Vignesh", ""
+middle_name = " "            # Your name in quotes Eg: "Middle", "Vignesh", ""
 last_name = "Haider"                # Your last name in quotes Eg: "Last", "Golla"
 
 # Phone number (required), make sure it's valid.
