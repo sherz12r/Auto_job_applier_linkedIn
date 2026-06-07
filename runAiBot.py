@@ -186,6 +186,7 @@ def set_search_location() -> None:
     '''
     Function to set search location
     '''
+    if not is_logged_in_LN(): login_LN()
     if search_location.strip():
         try:
             print_lg(f'Setting search location as: "{search_location.strip()}"')
@@ -1173,7 +1174,6 @@ chatGPT_tab = False
 linkedIn_tab = False
 
 def main() -> None:
-    # pyautogui.alert("Please consider sponsoring this project at:\n\nhttps://github.com/sponsors/GodsScion\n\n", "Support the project", "Okay")
     total_runs = 1
     print("main")
     try:
