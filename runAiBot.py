@@ -1175,7 +1175,6 @@ linkedIn_tab = False
 
 def main() -> None:
     total_runs = 1
-    print("main")
     try:
         global linkedIn_tab, tabs_count, useNewResume, aiClient
         alert_title = "Error Occurred. Closing Browser!"
@@ -1188,7 +1187,7 @@ def main() -> None:
         tabs_count = len(driver.window_handles)
         driver.get("https://www.linkedin.com/login/en-us")
         if not is_logged_in_LN(): login_LN()
-        
+        print("logged in")
         linkedIn_tab = driver.current_window_handle
 
         # # Login to ChatGPT in a new tab for resume customization
@@ -1218,8 +1217,6 @@ def main() -> None:
                 print_lg(f"Extracted about company info for AI: '{about_company_for_ai}'")
             except Exception as e:
                 print_lg("Failed to extract about company info!", e)
-        print("next in")
-        
         # Start applying to jobs
         driver.switch_to.window(linkedIn_tab)
         total_runs = run(total_runs)
@@ -1304,5 +1301,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    print("first")
     main()
