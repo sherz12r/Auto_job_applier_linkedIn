@@ -1,7 +1,7 @@
 
 
 from modules.helpers import get_default_temp_profile, make_directories
-from config.settings import run_in_background, stealth_mode, disable_extensions, safe_mode, file_name, failed_file_name, logs_folder_path, generated_resume_path
+from config.settings import run_in_background, stealth_mode, disable_extensions, safe_mode, file_name, failed_file_name, logs_folder_path, generated_resume_path, dedicated_chrome_profile
 from config.questions import default_resume_path
 if stealth_mode:
     import undetected_chromedriver as uc
@@ -13,7 +13,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from modules.helpers import find_default_profile_directory, critical_error_log, print_lg
 from selenium.common.exceptions import SessionNotCreatedException
-
+import os
 def createChromeSession(isRetry: bool = False):
     make_directories([file_name,failed_file_name,logs_folder_path+"/screenshots",default_resume_path,generated_resume_path+"/temp"])
     # Set up WebDriver with Chrome Profile
@@ -23,13 +23,31 @@ def createChromeSession(isRetry: bool = False):
 
     print_lg("IF YOU HAVE MORE THAN 10 TABS OPENED, PLEASE CLOSE OR BOOKMARK THEM! Or it's highly likely that application will just open browser and not do anything!")
     profile_dir = find_default_profile_directory()
-    if isRetry:
-        print_lg("Will login with a guest profile, browsing history will not be saved in the browser!")
-    elif profile_dir and not safe_mode:
-        options.add_argument(f"--user-data-dir={profile_dir}")
+    if dedicated_chrome_profile:
+        # Dedicated automation profile
+
+        chrome_profile = os.path.abspath("./chrome_profile")
+        if isRetry:
+            print_lg("Retry mode: using temporary guest profile.")
+            options.add_argument(f"--user-data-dir={get_default_temp_profile()}")
+        else:
+            os.makedirs(chrome_profile, exist_ok=True)
+    
+            print_lg(f"Using Chrome profile: {chrome_profile}")
+    
+            options.add_argument(f"--user-data-dir={chrome_profile}")
+            options.add_argument("--profile-directory=Default")
     else:
-        print_lg("Logging in with a guest profile, Web history will not be saved!")
-        options.add_argument(f"--user-data-dir={get_default_temp_profile()}")
+        if isRetry:
+            print_lg("Will login with a guest profile, browsing history will not be saved in the browser!")
+            
+        elif profile_dir and not safe_mode:
+            options.add_argument(f"--user-data-dir={profile_dir}")
+            options.add_argument("--profile-directory=Default")   # Change to your profile
+        else:
+            print_lg("Logging in with a guest profile, Web history will not be saved!")
+            options.add_argument(f"--user-data-dir={get_default_temp_profile()}")
+   
     if stealth_mode:
         # try: 
         #     driver = uc.Chrome(driver_executable_path="C:\\Program Files\\Google\\Chrome\\chromedriver-win64\\chromedriver.exe", options=options)

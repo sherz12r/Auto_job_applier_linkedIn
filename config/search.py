@@ -4,7 +4,7 @@
 
 # These Sentences are Searched in LinkedIn
 # Enter your search terms inside '[ ]' with quotes ' "searching title" ' for each search followed by comma ', ' Eg: ["Software Engineer", "Software Developer", "Selenium Developer"]
-search_terms = ["Web Developer", "laravel", "Senior laravel developer", "Senior Web Developer", "Full Stack Developer", "Automation Engineer", "Senior Laravel Engineer"]
+search_terms = ["Web Developer", "python Developer","laravel", "Senior laravel developer", "Senior Web Developer", "Full Stack Developer", "Automation Engineer", "Senior Laravel Engineer"]
 
 # Search location, this will be filled in "City, state, or zip code" search box. If left empty as "", tool will not fill it.
 search_location = "United Arab Emirates"               # Some valid examples: "", "United States", "India", "Chicago, Illinois, United States", "90001, Los Angeles, California, United States", "Bengaluru, Karnataka, India", etc.
@@ -70,13 +70,13 @@ pause_after_filters = True         # True or False, Note: True or False are case
 ## >>>>>>>>>>> SKIP IRRELEVANT JOBS <<<<<<<<<<<
  
 # Avoid applying to these companies, and companies with these bad words in their 'About Company' section...
-about_company_bad_words = ["Crossover", "UAE National"]       # (dynamic multiple search) or leave empty as []. Ex: ["Staffing", "Recruiting", "Name of Company you don't want to apply to"]
+about_company_bad_words = ["Crossover", "UAE National", "Fast track travel"]       # (dynamic multiple search) or leave empty as []. Ex: ["Staffing", "Recruiting", "Name of Company you don't want to apply to"]
 
 # Skip checking for `about_company_bad_words` for these companies if they have these good words in their 'About Company' section... [Exceptions, For example, I want to apply to "Robert Half" although it's a staffing company]
 about_company_good_words = []      # (dynamic multiple search) or leave empty as []. Ex: ["Robert Half", "Dice"]
 
 # Avoid applying to these companies if they have these bad words in their 'Job Description' section...  (In development)
-bad_words = ["US Citizen", "USA Citizen", "arabic speaker", "UAE family book", "UAE National","Figma to WordPress", "Frontend developer", "Internship", "EMIRATI","QA Engineer", "Salesforce", "data engineer", "Marketing", "Sales"]                     # (dynamic multiple search) or leave empty as []. Case Insensitive. Ex: ["word_1", "phrase 1", "word word", "polygraph", "US Citizenship", "Security Clearance"]
+bad_words = ["US Citizen", "USA Citizen", "arabic speaker", "UAE family book", "UAE National","Figma to WordPress", "Frontend", "Internship", "EMIRATI","QA Engineer", "Salesforce", "data engineer", "Marketing", "Sales", "Safety officer", "HR"]                     # (dynamic multiple search) or leave empty as []. Case Insensitive. Ex: ["word_1", "phrase 1", "word word", "polygraph", "US Citizenship", "Security Clearance"]
 
 # Do you have an active Security Clearance? (True for Yes and False for No)
 security_clearance = False         # True or False, Note: True or False are case-sensitive
