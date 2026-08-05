@@ -13,3 +13,4 @@ config/personals.py
 config/secerets.py
 .venv
 apikeys.py
+chrome_profile
