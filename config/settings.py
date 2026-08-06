@@ -93,3 +93,6 @@ showAiErrorAlerts = False            # True or False, Note: True or False are ca
 
 # Run every time in same browser so it will use same cockies best if you want to perform automation
 dedicated_chrome_profile = True
+
+# Run every time in same browser so it will use same cockies best if you want to perform automation
+resume_not_found_alert = False
