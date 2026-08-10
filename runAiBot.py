@@ -47,6 +47,7 @@ if run_in_background == True:
     pause_at_failed_question = False
     pause_before_submit = False
     run_non_stop = False
+    resume_not_found_alert = False
 
 first_name = first_name.strip()
 middle_name = middle_name.strip()
@@ -1162,7 +1163,7 @@ def main() -> None:
         global linkedIn_tab, tabs_count, useNewResume, aiClient
         alert_title = "Error Occurred. Closing Browser!"
         validate_config()
-        if not os.path.exists(default_resume_path) and not run_non_stop:
+        if not os.path.exists(default_resume_path) and not run_non_stop and resume_not_found_alert:
             pyautogui.alert(text='Your default resume "{}" is missing! Please update it\'s folder path "default_resume_path" in config.py\n\nOR\n\nAdd a resume with exact name and path (check for spelling mistakes including cases).\n\n\nFor now the bot will continue using your previous upload from LinkedIn!'.format(default_resume_path), title="Missing Resume", button="OK")
             useNewResume = False
         
