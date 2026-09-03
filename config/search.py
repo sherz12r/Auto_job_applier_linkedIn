@@ -68,6 +68,10 @@ pause_after_filters = False         # True or False, Note: True or False are cas
 
 
 ## >>>>>>>>>>> SKIP IRRELEVANT JOBS <<<<<<<<<<<
+
+# Only apply when the title or description matches at least one configured search term.
+# Generic words such as "Senior", "Developer", and "Engineer" are ignored while matching.
+match_job_title_to_search = True   # True or False, Note: True or False are case-sensitive
  
 # Avoid applying to these companies, and companies with these bad words in their 'About Company' section...
 about_company_bad_words = ["Crossover", "UAE National", "Fast track travel"]       # (dynamic multiple search) or leave empty as []. Ex: ["Staffing", "Recruiting", "Name of Company you don't want to apply to"]

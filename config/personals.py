@@ -19,6 +19,10 @@ current_city = "Abu dhabi"                  # Los Angeles, San Francisco, etc.
 Note: If left empty as "", the bot will fill in location of jobs location.
 '''
 
+# Photo to upload when an application asks for a photo, picture, or headshot.
+# Supported common formats: JPG, JPEG, PNG, and GIF. Leave empty to disable.
+profile_photo_path = ""             # Example: "C:/Users/YourName/Pictures/profile.jpg"
+
 # Address, not so common question but some job applications make it required!
 street = "Hamdan Street"
 state = "Abu dhabi"

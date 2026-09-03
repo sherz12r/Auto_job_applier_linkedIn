@@ -66,6 +66,35 @@ dailyEasyApplyLimitReached = False
 
 re_experience = re.compile(r'[(]?\s*(\d+)\s*[)]?\s*[-to]*\s*\d*[+]*\s*year[s]?', re.IGNORECASE)
 
+_generic_title_words = {
+    "a", "an", "and", "the", "for", "of", "senior", "sr", "junior", "jr",
+    "lead", "developer", "engineer", "engineering", "specialist", "role", "job"
+}
+
+
+def _normalized_words(text: str) -> set[str]:
+    """Return lowercase words, treating punctuation such as hyphens as separators."""
+    return set(re.findall(r"[a-z0-9]+", text.lower()))
+
+
+def title_matches_search(title: str, search_term: str) -> bool:
+    """Match text on the distinctive words in a search instead of generic role words."""
+    title_words = _normalized_words(title)
+    search_words = _normalized_words(search_term)
+    meaningful_words = search_words - _generic_title_words
+
+    # A search made only from generic role words should not accidentally reject everything.
+    return not meaningful_words or meaningful_words.issubset(title_words)
+
+
+def contains_blocked_term(text: str, term: str) -> bool:
+    """Match a configured blocked term as words, not as a substring inside another word."""
+    term_words = re.findall(r"[a-z0-9]+", term.lower())
+    if not term_words:
+        return False
+    pattern = r"(?<![a-z0-9])" + r"[^a-z0-9]+".join(map(re.escape, term_words)) + r"(?![a-z0-9])"
+    return re.search(pattern, text.lower()) is not None
+
 desired_salary_lakhs = str(round(desired_salary / 100000, 2))
 desired_salary_monthly = str(round(desired_salary/12, 2))
 desired_salary = str(desired_salary)
@@ -380,7 +409,7 @@ def get_job_description(
         skipReason = None
         skipMessage = None
         for word in bad_words:
-            if word.lower() in jobDescriptionLow:
+            if contains_blocked_term(jobDescriptionLow, word):
                 skipMessage = f'\n{jobDescription}\n\nContains bad word "{word}". Skipping this job!\n'
                 skipReason = "Found a Bad Word in About Job"
                 skip = True
@@ -412,7 +441,25 @@ def get_job_description(
 # Function to upload resume
 def upload_resume(modal: WebElement, resume: str) -> tuple[bool, str]:
     try:
-        modal.find_element(By.NAME, "file").send_keys(os.path.abspath(resume))
+        file_inputs = modal.find_elements(By.XPATH, ".//input[@type='file']")
+        resume_input = None
+        for element in file_inputs:
+            accept = (element.get_attribute("accept") or "").lower()
+            try:
+                upload_text = element.find_element(
+                    By.XPATH, "./ancestor::div[@data-test-form-element][1]"
+                ).text.lower()
+            except Exception:
+                upload_text = ""
+            if "image" in accept or any(
+                word in upload_text for word in ("photo", "picture", "headshot", "photograph")
+            ):
+                continue
+            resume_input = element
+            break
+        if not resume_input:
+            return False, "Previous resume"
+        resume_input.send_keys(os.path.abspath(resume))
         return True, os.path.basename(default_resume_path)
     except: return False, "Previous resume"
 
@@ -433,6 +480,43 @@ def answer_questions(modal: WebElement, questions_list: set, work_location: str,
     # all_questions = all_questions + all_list_questions + all_single_line_questions
 
     for Question in all_questions:
+        # Check for application-specific photo/image uploads before other question types.
+        file_input = try_xp(Question, ".//input[@type='file']", False)
+        if file_input:
+            accept = (file_input.get_attribute("accept") or "").lower()
+            question_text = Question.text.strip()
+            question_text_lower = question_text.lower()
+            is_image_question = "image" in accept or any(
+                word in question_text_lower for word in ("photo", "picture", "headshot", "photograph")
+            )
+            if is_image_question:
+                previous_file = file_input.get_attribute("value") or ""
+                answer = previous_file
+                if not previous_file:
+                    if not profile_photo_path.strip():
+                        print_lg(f'Photo upload required for "{question_text or "Photo"}", but profile_photo_path is empty.')
+                        questions_list.add((question_text or "Photo", "Not configured", "image", previous_file))
+                    else:
+                        photo_path = os.path.abspath(os.path.expanduser(profile_photo_path.strip()))
+                        if not os.path.isfile(photo_path):
+                            print_lg(f'Configured profile photo was not found: "{photo_path}"')
+                            questions_list.add((question_text or "Photo", "File not found", "image", previous_file))
+                        elif os.path.splitext(photo_path)[1].lower() not in (".jpg", ".jpeg", ".png", ".gif"):
+                            print_lg(f'Configured profile photo has an unsupported file type: "{photo_path}"')
+                            questions_list.add((question_text or "Photo", "Unsupported file type", "image", previous_file))
+                        else:
+                            try:
+                                file_input.send_keys(photo_path)
+                                answer = os.path.basename(photo_path)
+                                questions_list.add((question_text or "Photo", answer, "image", previous_file))
+                                print_lg(f'Uploaded profile photo "{answer}".')
+                            except Exception as e:
+                                print_lg("Failed to upload the configured profile photo!", e)
+                                questions_list.add((question_text or "Photo", "Upload failed", "image", previous_file))
+                else:
+                    questions_list.add((question_text or "Photo", answer, "image", previous_file))
+                continue
+
         # Check if it's a select Question
         select = try_xp(Question, ".//select", False)
         if select:
@@ -780,6 +864,107 @@ def follow_company(modal: WebDriver = driver) -> None:
             try_xp(modal, ".//label[@for='follow-company-checkbox']")
     except Exception as e:
         print_lg("Failed to update follow companies checkbox!", e)
+
+
+def send_hr_connection(hr_link: str) -> str:
+    """Send an optional connection request to the hiring person in a temporary tab."""
+    if not connect_hr or hr_link == "Unknown":
+        return "Disabled" if not connect_hr else "HR profile unavailable"
+
+    original_tab = driver.current_window_handle
+    connection_tab = None
+    try:
+        existing_tabs = set(driver.window_handles)
+        driver.execute_script("window.open(arguments[0], '_blank');", hr_link)
+        WebDriverWait(driver, 5).until(lambda current_driver: len(current_driver.window_handles) > len(existing_tabs))
+        connection_tab = next(handle for handle in driver.window_handles if handle not in existing_tabs)
+        driver.switch_to.window(connection_tab)
+        WebDriverWait(driver, 10).until(
+            lambda current_driver: current_driver.execute_script("return document.readyState") == "complete"
+        )
+
+        def click_first(selectors: list[str], timeout: float = 5) -> bool:
+            for selector in selectors:
+                try:
+                    element = WebDriverWait(driver, timeout).until(
+                        EC.element_to_be_clickable((By.XPATH, selector))
+                    )
+                    try:
+                        element.click()
+                    except Exception:
+                        driver.execute_script("arguments[0].click();", element)
+                    buffer(click_gap)
+                    return True
+                except Exception:
+                    continue
+            return False
+
+        profile_main = "//main"
+        if driver.find_elements(By.XPATH, profile_main + "//button[contains(@aria-label, 'Pending')]"):
+            print_lg("Connection request was already pending for the hiring person.")
+            return "Already pending"
+
+        # LinkedIn may show Connect directly, or place it in the More actions menu.
+        connect_selectors = [
+            profile_main + "//button[contains(translate(@aria-label, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'invite') and contains(translate(@aria-label, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'connect')]",
+            profile_main + "//button[.//span[normalize-space()='Connect']]",
+            profile_main + "//a[.//span[normalize-space()='Connect']]",
+        ]
+        connect_button = click_first(connect_selectors, 4)
+        if not connect_button:
+            more_clicked = click_first([
+                profile_main + "//button[contains(@aria-label, 'More actions')]",
+                profile_main + "//button[.//span[normalize-space()='More']]",
+            ], 4)
+            if more_clicked:
+                connect_button = click_first([
+                    "//*[@role='menu']//div[@role='button'][.//span[normalize-space()='Connect']]",
+                    "//*[@role='menu']//li[.//span[normalize-space()='Connect']]",
+                    "//*[@role='menu']//span[normalize-space()='Connect']/ancestor::*[self::div or self::li][@role][1]",
+                ], 4)
+        if not connect_button:
+            if driver.find_elements(By.XPATH, profile_main + "//button[.//span[normalize-space()='Message']]"):
+                print_lg("Hiring person is already connected or does not accept connection requests.")
+                return "Already connected or unavailable"
+            print_lg("Connection request not sent: Connect button was unavailable.")
+            return "Connect unavailable"
+
+        if connect_request_message:
+            if not click_first([
+                "//button[.//span[normalize-space()='Add a note']]",
+                "//button[contains(@aria-label, 'Add a note')]",
+            ], 5):
+                return "Add note unavailable"
+            message_box = WebDriverWait(driver, 3).until(
+                EC.presence_of_element_located((By.XPATH, "//textarea"))
+            )
+            message_box.send_keys(connect_request_message)
+            if not click_first([
+                "//button[.//span[normalize-space()='Send']]",
+                "//button[contains(@aria-label, 'Send') and not(@disabled)]",
+            ], 5):
+                return "Send unavailable"
+        else:
+            if not click_first([
+                "//button[.//span[normalize-space()='Send without a note']]",
+                "//button[.//span[normalize-space()='Send now']]",
+                "//button[contains(@aria-label, 'Send now')]",
+                "//button[.//span[normalize-space()='Send']]",
+            ], 5):
+                return "Send unavailable"
+
+        print_lg("Successfully sent a connection request to the hiring person.")
+        return "Sent"
+    except Exception as e:
+        print_lg("Failed to send connection request to the hiring person.", e)
+        return "Failed"
+    finally:
+        try:
+            if connection_tab and connection_tab in driver.window_handles:
+                driver.close()
+            driver.switch_to.window(original_tab)
+        except Exception as e:
+            print_lg("Failed to return to the LinkedIn jobs tab after connection request.", e)
     
 
 
@@ -899,7 +1084,7 @@ def apply_to_jobs(search_terms: list[str]) -> None:
                     date_applied = "Pending"
                     hr_link = "Unknown"
                     hr_name = "Unknown"
-                    connect_request = "In Development" # Still in development
+                    connect_request = "Not attempted"
                     date_listed = "Unknown"
                     skills = "Needs an AI" # Still in development
                     resume = "Pending"
@@ -922,9 +1107,19 @@ def apply_to_jobs(search_terms: list[str]) -> None:
 
                     # Hiring Manager info
                     try:
-                        hr_info_card = WebDriverWait(driver,2).until(EC.presence_of_element_located((By.CLASS_NAME, "hirer-card__hirer-information")))
-                        hr_link = hr_info_card.find_element(By.TAG_NAME, "a").get_attribute("href")
-                        hr_name = hr_info_card.find_element(By.TAG_NAME, "span").text
+                        hr_profile = WebDriverWait(driver, 4).until(
+                            EC.presence_of_element_located((By.XPATH,
+                                "//*[contains(@class, 'hirer-card')]//a[contains(@href, '/in/')]"
+                                " | //*[contains(translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'meet the hiring team')]"
+                                "/following::a[contains(@href, '/in/')][1]"
+                                " | //a[contains(@class, 'jobs-poster') and contains(@href, '/in/')]"
+                            ))
+                        )
+                        hr_link = (hr_profile.get_attribute("href") or "Unknown").split("?")[0]
+                        hr_name = hr_profile.text.strip().split("\n")[0]
+                        if not hr_name:
+                            hr_name = hr_profile.get_attribute("aria-label") or "Unknown"
+                        print_lg(f'Found hiring person "{hr_name}": {hr_link}')
                         # if connect_hr:
                         #     driver.switch_to.new_window('tab')
                         #     driver.get(hr_link)
@@ -967,6 +1162,27 @@ def apply_to_jobs(search_terms: list[str]) -> None:
                         rejected_jobs.add(job_id)
                         skip_count += 1
                         continue
+
+                    if match_job_title_to_search:
+                        searchable_job_text = title if description == "Unknown" else f"{title} {description}"
+                        matches_configured_search = any(
+                            title_matches_search(searchable_job_text, configured_term)
+                            for configured_term in search_terms
+                        )
+                        if not matches_configured_search:
+                            print_lg(
+                                f'Skipping "{title} | {company}" job: its title and description '
+                                f'do not match any configured search term. Job ID: {job_id}!'
+                            )
+                            failed_job(
+                                job_id, job_link, resume, date_listed,
+                                "Job does not match configured search terms",
+                                "No meaningful search-term match in title or description.",
+                                "Skipped", screenshot_name
+                            )
+                            rejected_jobs.add(job_id)
+                            skip_count += 1
+                            continue
 
                     
                     if use_AI and description != "Unknown":
@@ -1100,6 +1316,8 @@ def apply_to_jobs(search_terms: list[str]) -> None:
                             return
                         if skip: continue
 
+                    if date_applied != "Pending":
+                        connect_request = send_hr_connection(hr_link)
                     submitted_jobs(job_id, title, company, work_location, work_style, description, experience_required, skills, hr_name, hr_link, resume, reposted, date_listed, date_applied, job_link, application_link, questions_list, connect_request)
                     if uploaded:   useNewResume = False
 

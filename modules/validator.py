@@ -62,6 +62,7 @@ def validate_personals() -> None | ValueError | TypeError:
     check_string(phone_number, "phone_number", min_length=10)
 
     check_string(current_city, "current_city")
+    check_string(profile_photo_path, "profile_photo_path")
     
     check_string(street, "street")
     check_string(state, "state")
@@ -140,6 +141,7 @@ def validate_search() -> None | ValueError | TypeError:
 
     check_boolean(pause_after_filters, "pause_after_filters")
 
+    check_boolean(match_job_title_to_search, "match_job_title_to_search")
     check_list(about_company_bad_words, "about_company_bad_words")
     check_list(about_company_good_words, "about_company_good_words")
     check_list(bad_words, "bad_words")
@@ -192,8 +194,10 @@ def validate_settings() -> None | ValueError | TypeError:
 
     check_boolean(close_tabs, "close_tabs")
     check_boolean(follow_companies, "follow_companies")
-    # check_boolean(connect_hr, "connect_hr")
-    # check_string(connect_request_message, "connect_request_message", min_length=10)
+    check_boolean(connect_hr, "connect_hr")
+    check_string(connect_request_message, "connect_request_message")
+    if len(connect_request_message) > 200:
+        raise ValueError('The variable "connect_request_message" in "config/settings.py" must not exceed 200 characters!')
 
     check_boolean(run_non_stop, "run_non_stop")
     check_boolean(alternate_sortby, "alternate_sortby")
