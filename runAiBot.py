@@ -884,11 +884,16 @@ def send_hr_connection(hr_link: str) -> str:
         )
 
         def click_first(selectors: list[str], timeout: float = 5) -> bool:
+            """Click the first visible, enabled match (LinkedIn keeps hidden modal copies in the DOM)."""
             for selector in selectors:
                 try:
-                    element = WebDriverWait(driver, timeout).until(
-                        EC.element_to_be_clickable((By.XPATH, selector))
-                    )
+                    def visible_click_target(current_driver):
+                        for candidate in current_driver.find_elements(By.XPATH, selector):
+                            if candidate.is_displayed() and candidate.is_enabled():
+                                return candidate
+                        return False
+
+                    element = WebDriverWait(driver, timeout).until(visible_click_target)
                     try:
                         element.click()
                     except Exception:
@@ -899,59 +904,102 @@ def send_hr_connection(hr_link: str) -> str:
                     continue
             return False
 
-        profile_main = "//main"
-        if driver.find_elements(By.XPATH, profile_main + "//button[contains(@aria-label, 'Pending')]"):
+        # Keep all relationship checks/clicks inside the profile's top card. A
+        # page-wide search can accidentally click Connect on "People you may know".
+        try:
+            WebDriverWait(driver, 8).until(
+                EC.visibility_of_element_located((By.XPATH, "(//main//section[.//h1])[1]"))
+            )
+            profile_main = "(//main//section[.//h1])[1]"
+        except Exception:
+            profile_main = "//main"
+        upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        lower = "abcdefghijklmnopqrstuvwxyz"
+        pending_selector = (
+            profile_main + "//button["
+            "contains(translate(normalize-space(.), '" + upper + "', '" + lower + "'), 'pending') or "
+            "contains(translate(@aria-label, '" + upper + "', '" + lower + "'), 'pending') or "
+            "contains(translate(@aria-label, '" + upper + "', '" + lower + "'), 'withdraw invitation') or "
+            "contains(translate(normalize-space(.), '" + upper + "', '" + lower + "'), 'invitation sent')"
+            "]"
+        )
+        if any(element.is_displayed() for element in driver.find_elements(By.XPATH, pending_selector)):
             print_lg("Connection request was already pending for the hiring person.")
             return "Already pending"
 
         # LinkedIn may show Connect directly, or place it in the More actions menu.
         connect_selectors = [
             profile_main + "//button[contains(translate(@aria-label, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'invite') and contains(translate(@aria-label, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'connect')]",
-            profile_main + "//button[.//span[normalize-space()='Connect']]",
-            profile_main + "//a[.//span[normalize-space()='Connect']]",
+            profile_main + "//button[translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='connect']",
+            profile_main + "//a[translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='connect']",
         ]
         connect_button = click_first(connect_selectors, 4)
         if not connect_button:
             more_clicked = click_first([
-                profile_main + "//button[contains(@aria-label, 'More actions')]",
-                profile_main + "//button[.//span[normalize-space()='More']]",
+                profile_main + "//button[contains(translate(@aria-label, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'more actions')]",
+                profile_main + "//button[translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='more']",
             ], 4)
             if more_clicked:
                 connect_button = click_first([
-                    "//*[@role='menu']//div[@role='button'][.//span[normalize-space()='Connect']]",
-                    "//*[@role='menu']//li[.//span[normalize-space()='Connect']]",
-                    "//*[@role='menu']//span[normalize-space()='Connect']/ancestor::*[self::div or self::li][@role][1]",
+                    "//*[@role='menu']//div[@role='button'][translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='connect']",
+                    "//*[@role='menu']//li[translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='connect']",
+                    "//*[@role='menu']//*[translate(normalize-space(.), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='connect']/ancestor::*[self::div or self::li][@role][1]",
                 ], 4)
         if not connect_button:
-            if driver.find_elements(By.XPATH, profile_main + "//button[.//span[normalize-space()='Message']]"):
+            message_selector = (
+                profile_main + "//button["
+                "translate(normalize-space(.), '" + upper + "', '" + lower + "')='message' or "
+                "contains(translate(@aria-label, '" + upper + "', '" + lower + "'), 'message')"
+                "]"
+            )
+            if any(element.is_displayed() for element in driver.find_elements(By.XPATH, message_selector)):
                 print_lg("Hiring person is already connected or does not accept connection requests.")
                 return "Already connected or unavailable"
             print_lg("Connection request not sent: Connect button was unavailable.")
             return "Connect unavailable"
 
+        # Scope invitation actions to the visible dialog. Without this, Selenium can
+        # select LinkedIn's hidden template dialog and leave the real modal open.
+        dialog = WebDriverWait(driver, 8).until(
+            EC.visibility_of_element_located((By.XPATH, "//div[@role='dialog']"))
+        )
+        dialog_prefix = "//div[@role='dialog' and not(ancestor::*[@aria-hidden='true'])]"
+
         if connect_request_message:
             if not click_first([
-                "//button[.//span[normalize-space()='Add a note']]",
-                "//button[contains(@aria-label, 'Add a note')]",
+                dialog_prefix + "//button[contains(translate(normalize-space(.), '" + upper + "', '" + lower + "'), 'add a note')]",
+                dialog_prefix + "//button[contains(translate(@aria-label, '" + upper + "', '" + lower + "'), 'add a note')]",
             ], 5):
                 return "Add note unavailable"
-            message_box = WebDriverWait(driver, 3).until(
-                EC.presence_of_element_located((By.XPATH, "//textarea"))
+            message_box = WebDriverWait(dialog, 3).until(
+                lambda current_dialog: next(
+                    (box for box in current_dialog.find_elements(By.XPATH, ".//textarea") if box.is_displayed()),
+                    False,
+                )
             )
             message_box.send_keys(connect_request_message)
             if not click_first([
-                "//button[.//span[normalize-space()='Send']]",
-                "//button[contains(@aria-label, 'Send') and not(@disabled)]",
+                dialog_prefix + "//button[translate(normalize-space(.), '" + upper + "', '" + lower + "')='send']",
+                dialog_prefix + "//button[contains(translate(@aria-label, '" + upper + "', '" + lower + "'), 'send') and not(@disabled)]",
             ], 5):
                 return "Send unavailable"
         else:
             if not click_first([
-                "//button[.//span[normalize-space()='Send without a note']]",
-                "//button[.//span[normalize-space()='Send now']]",
-                "//button[contains(@aria-label, 'Send now')]",
-                "//button[.//span[normalize-space()='Send']]",
+                dialog_prefix + "//button[contains(translate(normalize-space(.), '" + upper + "', '" + lower + "'), 'send without a note')]",
+                dialog_prefix + "//button[contains(translate(@aria-label, '" + upper + "', '" + lower + "'), 'send without a note')]",
+                dialog_prefix + "//button[translate(normalize-space(.), '" + upper + "', '" + lower + "')='send now']",
+                dialog_prefix + "//button[contains(translate(@aria-label, '" + upper + "', '" + lower + "'), 'send now')]",
+                dialog_prefix + "//button[translate(normalize-space(.), '" + upper + "', '" + lower + "')='send']",
             ], 5):
                 return "Send unavailable"
+
+        try:
+            WebDriverWait(driver, 5).until(EC.staleness_of(dialog))
+        except Exception:
+            # Some LinkedIn variants hide/reuse the dialog node instead of removing it.
+            if dialog.is_displayed():
+                print_lg("Connection send button was clicked, but the invitation dialog stayed open.")
+                return "Send not confirmed"
 
         print_lg("Successfully sent a connection request to the hiring person.")
         return "Sent"
